@@ -30,4 +30,10 @@
 *.uvopt
 *.dep
 *.uvgui.*
+tags
+*.swp
+*.Bak
+*.__i
+*.bak
+*.sct
 
