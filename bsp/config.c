@@ -1,6 +1,7 @@
 #include "config.h"
 #include "fsmc_sram.h"
 #include "main.h"
+#include "usart.h"
 
 
 void Board_Init(void)
