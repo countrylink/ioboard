@@ -108,7 +108,7 @@ void SysTick_Handler(void)
 void TIM2_IRQHandler(void)
 {
     TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
-    AD7327_SPI_handler ();
+    ADC_SPI_handler ();
     return;
 }
 

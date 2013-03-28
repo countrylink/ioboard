@@ -14,6 +14,7 @@ void Board_Init(void)
     SRAM_Init();
     //
     SPI_Configuration();
+    SPI2_Configuration ();
     TIM2_Config();
     return;
 }
@@ -21,7 +22,7 @@ void Board_Init(void)
 void LEDInit(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
-    /* GPIOF Periph clock enable */
+
     RCC_AHB1PeriphClockCmd(LED_GPIO_CLK, ENABLE);
 
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_LED1 | GPIO_Pin_LED2
@@ -32,6 +33,23 @@ void LEDInit(void)
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
     GPIO_Init(LED_GPIO, &GPIO_InitStructure);
     return;
+}
+
+void SW_CNTL_Init(void) 
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    RCC_AHB1PeriphClockCmd(SW_CNTL_GPIO_CLK, ENABLE);
+
+    GPIO_InitStructure.GPIO_Pin = SW_CNTL_EN_Pin | SW_CNTL_A0_Pin |
+        SW_CNTL_A1_Pin | SW_CNTL_A2_Pin;                          
+
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+    GPIO_Init(SW_CNTL_GPIO, &GPIO_InitStructure);
+
 }
 
 
@@ -67,7 +85,6 @@ void SPI2_Configuration (void)
     SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB;
     SPI_InitStruct.SPI_CRCPolynomial = 7;
     SPI_Init(SPI2, &SPI_InitStruct);
-
 
 
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
@@ -111,7 +128,7 @@ void SPI_Configuration(void)
     SPI_InitStruct.SPI_CPOL = SPI_CPOL_High ;
     SPI_InitStruct.SPI_CPHA = SPI_CPHA_1Edge;
     SPI_InitStruct.SPI_NSS = SPI_NSS_Soft ;
-    SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
+    SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
     SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB;
     SPI_InitStruct.SPI_CRCPolynomial = 7;
     SPI_Init(SPI1, &SPI_InitStruct);
@@ -136,8 +153,8 @@ int16_t SPI_ADC_com(uint16_t send, uint16_t *rev)
    SPI1_CS_LOW;
    SPI1->DR = send;
    while ((SPI1->SR & SPI_I2S_FLAG_RXNE) == (uint16_t)RESET);
-   SPI1_CS_HIGH;
     *rev = SPI1->DR;
+   SPI1_CS_HIGH;
 	return 0;
 }
 
@@ -206,6 +223,16 @@ void TIM2_SetSamplingRate (uint32_t rate )
 {
     TIM_Cmd(TIM2, DISABLE);          
     TIM_SetAutoreload(TIM2,10000000/rate);
+}
+
+void StartSampling(uint32_t ch_mask, uint32_t sample_count)
+{
+    CH_Mask = ch_mask;
+    total_sample = sample_count;
+
+    TIM_Cmd(TIM2, ENABLE);
+
+
 }
 
 

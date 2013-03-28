@@ -52,6 +52,16 @@
 #define GPIO_Pin_LED3							GPIO_Pin_3
 #define GPIO_Pin_LED4							GPIO_Pin_4
 
+/*--------------------SW_CNTL-----------------------------*/
+#define SW_CNTL_GPIO_CLK                       RCC_AHB1Periph_GPIOE 
+#define SW_CNTL_GPIO                            GPIOE
+#define SW_CNTL_EN_Pin                          GPIO_Pin_4
+#define SW_CNTL_A0_Pin                          GPIO_Pin_5
+#define SW_CNTL_A1_Pin                          GPIO_Pin_6
+#define SW_CNTL_A2_Pin                          GPIO_Pin_2
+
+
+
 /*--------------------JOYSTICK-----------------------------*/
 //A(PB15)  B(PD9)  C(PD11)  D(PD13)  PRESS(PD15)
 #define  Open207V_JOYSTICK_A_CLK						RCC_AHB1Periph_GPIOB 
@@ -431,24 +441,7 @@
 #define Open207V_SCCB_SCL_AF                  	GPIO_AF_I2C2
 
 
-
-/**
- * @connected to NRF24L01
- */
- /* Configure NRF24L01 pins: IRQ->PB14 and CSN->PB15  CE->PB13*/ 
- /*--------------------LED-----------------------------*/
-#define Open207V_IRQ_GPIO_CLK							RCC_AHB1Periph_GPIOB
-#define Open207V_IRQ_GPIO								GPIOB
-#define Open207V_GPIO_Pin_IRQ							GPIO_Pin_14
-
-
-#define Open207V_CSN_GPIO_CLK							RCC_AHB1Periph_GPIOB
-#define Open207V_CSN_GPIO								GPIOB
-#define Open207V_GPIO_Pin_CSN							GPIO_Pin_15
-
-#define Open207V_CE_GPIO_CLK							RCC_AHB1Periph_GPIOB
-#define Open207V_CE_GPIO								GPIOB
-#define Open207V_GPIO_Pin_CE							GPIO_Pin_13
+/**************************************************************************/
 
 
 #define SPI1_CS_LOW GPIO_ResetBits(GPIOA,GPIO_Pin_4)
@@ -460,16 +453,28 @@
 #define LED1_OFF GPIO_ResetBits(LED_GPIO,GPIO_Pin_1)
 #define LED2_OFF GPIO_ResetBits(LED_GPIO,GPIO_Pin_2)
 
-void LEDInit(void);
+#define SW_EN_1 GPIO_SetBits(SW_CNTL_GPIO,SW_CNTL_EN_Pin)
+#define SW_A0_1 GPIO_SetBits(SW_CNTL_GPIO,SW_CNTL_A0_Pin)
+#define SW_A1_1 GPIO_SetBits(SW_CNTL_GPIO,SW_CNTL_A1_Pin)
+#define SW_A2_1 GPIO_SetBits(SW_CNTL_GPIO,SW_CNTL_A2_Pin)
 
+
+#define SW_EN_0 GPIO_ResetBits(SW_CNTL_GPIO,SW_CNTL_EN_Pin)
+#define SW_A0_0 GPIO_ResetBits(SW_CNTL_GPIO,SW_CNTL_A0_Pin)
+#define SW_A1_0 GPIO_ResetBits(SW_CNTL_GPIO,SW_CNTL_A1_Pin)
+#define SW_A2_0 GPIO_ResetBits(SW_CNTL_GPIO,SW_CNTL_A2_Pin)
+
+void LEDInit(void);
 void SPI_Configuration(void);
-void SPIx_Send_byte(u16 data);
+void SPI2_Configuration (void);
+void SPIx_Send_byte(u16 );
 u16 SPIx_Receive_byte(void);
 
 void TIM2_Config(void);
 void Board_Init(void);
 void TIM2_SetSamplingRate (uint32_t rate );
 int16_t SPI_ADC_com(uint16_t send, uint16_t *rev);
+void StartSampling(uint32_t ch_mask, uint32_t sample_count);
 
 
 

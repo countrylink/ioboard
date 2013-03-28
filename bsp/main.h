@@ -8,6 +8,7 @@
 #define STATE_COMM     3
 
 
+GBLDEF(volatile uint32_t CH_Mask,0x0);
 GBLDEF(volatile uint32_t sample_cnt,0);
 GBLDEF(volatile uint32_t total_sample,5000);
 GBLDEF(volatile uint16_t *buf_ptr,0);

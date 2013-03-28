@@ -4,7 +4,9 @@
 #include "fsmc_sram.h"
 #include "config.h"
 #include "main.h"
+#include "ad7327.h"
 
+#define TEST_SRAM
 
 
 #ifdef TEST_SRAM
@@ -74,16 +76,16 @@ int main(void)
 #ifdef TEST_SRAM    
     SRAM_test ();
 #endif    
-
-    while (1)
-    {
+    
+    do  {
+#if 1        
         cnt++;
         if (cnt > 5000000) {
             if (flag) {
                 LED1_ON;
                 LED2_ON;
                 flag = 0;
-                //	  AD7327_test();
+                AD7327_test();
 
             }
             else {
@@ -93,18 +95,11 @@ int main(void)
             }
             cnt = 0;
         }
-    }
+#endif         
+    } while (1);  //main loop
 }
 
 #ifdef  USE_FULL_ASSERT
-
-/**
-  * @brief  Reports the name of the source file and the source line number
-  *   where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
 void assert_failed(uint8_t* file, uint32_t line)
 { 
   /* User can add his own implementation to report the file name and line number,
