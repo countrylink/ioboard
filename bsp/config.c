@@ -7,6 +7,7 @@
 void Board_Init(void)
 {
     LEDInit(); 
+	SW_CNTL_Init();
 
     USART_Configuration();
     USART_NVIC_Config();
@@ -159,7 +160,7 @@ int16_t SPI_ADC_com(uint16_t send, uint16_t *rev)
 }
 
 
-void SPIx_Send_byte(u16 data)
+void SPIx_Send_byte(uint16_t data)
 {
 	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)==RESET);
 	SPI1_CS_LOW;
@@ -170,7 +171,7 @@ void SPIx_Send_byte(u16 data)
 	SPI1_CS_HIGH;
 }
 
-u16 SPIx_Receive_byte(void)
+uint16_t SPIx_Receive_byte(void)
 {
 	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)==RESET);
 	SPI_I2S_SendData(SPI1,0x00);
@@ -225,13 +226,12 @@ void TIM2_SetSamplingRate (uint32_t rate )
     TIM_SetAutoreload(TIM2,10000000/rate);
 }
 
-void StartSampling(uint32_t ch_mask, uint32_t sample_count)
+void StartSampling(uint8_t max_ch, uint32_t sample_count)
 {
-    CH_Mask = ch_mask;
+    Max_ch = max_ch;
     total_sample = sample_count;
 
     TIM_Cmd(TIM2, ENABLE);
-
 
 }
 

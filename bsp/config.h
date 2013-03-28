@@ -468,13 +468,15 @@ void LEDInit(void);
 void SPI_Configuration(void);
 void SPI2_Configuration (void);
 void SPIx_Send_byte(u16 );
-u16 SPIx_Receive_byte(void);
+void SW_CNTL_Init(void);
+uint16_t SPIx_Receive_byte(void);
+void SPIx_Send_byte(uint16_t );
 
 void TIM2_Config(void);
 void Board_Init(void);
 void TIM2_SetSamplingRate (uint32_t rate );
 int16_t SPI_ADC_com(uint16_t send, uint16_t *rev);
-void StartSampling(uint32_t ch_mask, uint32_t sample_count);
+void StartSampling(uint8_t max_ch , uint32_t sample_count);
 
 
 
