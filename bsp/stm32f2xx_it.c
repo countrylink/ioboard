@@ -4,6 +4,7 @@
 #include "stm32f2xx_it.h"
 #include "config.h"
 #include "ad7327.h"
+#include "main.h"
 
 
 /**
@@ -114,7 +115,11 @@ void TIM2_IRQHandler(void)
 
 void SPI2_IRQHandler (void)
 {
-
+    if ((SPI2->SR & SPI_I2S_FLAG_RXNE) == (uint16_t)SET) {
+         RxBuf[RxWr++] = SPI2->DR;
+         if (RxWr >= RX_SIZE) RxWr = 0;
+         RxFullness++;
+    }
 
 }
 

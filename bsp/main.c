@@ -68,10 +68,20 @@ void BufReset ( void )
     return ;
 }
 
+void RxBuf_Reset(void )
+{
+    RxWr = 0;
+    RxRd = 0;
+    RxFullness = 0;
+}
 
 
 int main(void)
 {
+    uint8_t cmd,cmd1,cmd2,cmd3,cmd_valid;
+    
+    uint8_t loop,tmp;
+    uint32_t tmp32;
 
     uint32_t cnt =0;
     uint32_t flag = 0;
@@ -86,6 +96,65 @@ int main(void)
 #endif    
     
     do  {
+
+        cmd_valid = 0;
+        if (RxFullness >=4 ) {
+            loop = 0;
+            SPI2_INT_DIS;
+            tmp = RxFullness;
+            do {
+                if ((RxBuf[RxRd] & 0xF0) == 0xB0) {
+                    if ((tmp - loop) < 4) break;
+                    cmd = RxBuf[RxRd++];
+                    if (RxRd >= RX_SIZE)  RxRd = 0;
+                    cmd1 = RxBuf[RxRd++];
+                    if (RxRd >= RX_SIZE)  RxRd = 0;
+                    cmd2 = RxBuf[RxRd++];
+                    if (RxRd >= RX_SIZE)  RxRd = 0;
+                    cmd3 = RxBuf[RxRd++];
+                    if (RxRd >= RX_SIZE)  RxRd = 0;
+                    cmd_valid = 1;
+                    loop +=4;
+                    break;
+                }
+                RxRd++;
+                if (RxRd >= RX_SIZE)  RxRd = 0;
+                loop++;
+            } while (loop < tmp);
+            RxFullness -= loop;
+            SPI2_INT_EN;
+        }
+
+        if (cmd_valid) {
+            tmp32 = (cmd1<<16) | (cmd2<<8) | (cmd3);
+            switch (cmd) {
+                case CMD_SET_RATE:
+                    SamplingRate = tmp & 0xfffff; 
+                    if (!SamplingRate) SamplingRate = 1;
+                    break;
+                case CMD_SET_CHAN:
+                    break;
+                case CMD_START:
+                    break;
+                case CMD_ABORT:
+                    break;
+                case CMD_SEND_DATA:
+                    break;
+                case CMD_STATUS:
+                    break;
+
+                default:
+                    break;
+
+
+
+
+            }
+
+            cmd_valid = 0;
+
+        }
+
 #if 1        
         cnt++;
         if (cnt > 5000000) {

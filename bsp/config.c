@@ -91,7 +91,7 @@ void SPI2_Configuration (void)
 
     /* Configure the SPI interrupt priority */
     NVIC_InitStructure.NVIC_IRQChannel = SPI2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
@@ -149,15 +149,21 @@ void SPI_Configuration(void)
 
 int16_t SPI_ADC_com(uint16_t send, uint16_t *rev)
 {
-   while ((SPI1->SR & SPI_I2S_FLAG_TXE) == (uint16_t)RESET);
-   SPI1_CS_LOW;
-   SPI1->DR = send;
-   while ((SPI1->SR & SPI_I2S_FLAG_RXNE) == (uint16_t)RESET);
+    while ((SPI1->SR & SPI_I2S_FLAG_TXE) == (uint16_t)RESET);
+    SPI1_CS_LOW;
+    SPI1->DR = send;
+    while ((SPI1->SR & SPI_I2S_FLAG_RXNE) == (uint16_t)RESET);
     *rev = SPI1->DR;
-   SPI1_CS_HIGH;
-	return 0;
+    SPI1_CS_HIGH;
+    return 0;
 }
 
+void SPI2_Send_data (uint8_t data)
+{
+    while ((SPI2->SR & SPI_I2S_FLAG_TXE) == RESET);
+    SPI2->DR = data;
+    return ;
+}
 
 
 void TIM2_Config(void)
@@ -177,7 +183,7 @@ void TIM2_Config(void)
     /* NVIC Configuration */
     /* Enable the TIM2 gloabal Interrupt */
     NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
@@ -206,7 +212,7 @@ void TIM2_SetSamplingRate (uint32_t rate )
 
 void StartSampling(uint8_t max_ch, uint32_t sample_count)
 {
-    MaxChnl = max_ch;
+    MaxChan = max_ch;
     TotalSample = sample_count;
     SampleCnt = 0;
 
