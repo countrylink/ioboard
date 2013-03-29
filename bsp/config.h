@@ -467,10 +467,7 @@
 void LEDInit(void);
 void SPI_Configuration(void);
 void SPI2_Configuration (void);
-void SPIx_Send_byte(u16 );
 void SW_CNTL_Init(void);
-uint16_t SPIx_Receive_byte(void);
-void SPIx_Send_byte(uint16_t );
 
 void TIM2_Config(void);
 void Board_Init(void);

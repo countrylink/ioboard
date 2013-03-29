@@ -13,7 +13,6 @@ void Board_Init(void)
     USART_NVIC_Config();
 
     SRAM_Init();
-    //
     SPI_Configuration();
     SPI2_Configuration ();
     TIM2_Config();
@@ -160,27 +159,6 @@ int16_t SPI_ADC_com(uint16_t send, uint16_t *rev)
 }
 
 
-void SPIx_Send_byte(uint16_t data)
-{
-	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)==RESET);
-	SPI1_CS_LOW;
-	SPI_I2S_SendData(SPI1,data);
-
-	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE)==RESET);
-	SPI_I2S_ReceiveData(SPI1);
-	SPI1_CS_HIGH;
-}
-
-uint16_t SPIx_Receive_byte(void)
-{
-	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)==RESET);
-	SPI_I2S_SendData(SPI1,0x00);
-	
-	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE)==RESET);
-	return SPI_I2S_ReceiveData(SPI1);
-}
-
-
 
 void TIM2_Config(void)
 {
@@ -228,9 +206,11 @@ void TIM2_SetSamplingRate (uint32_t rate )
 
 void StartSampling(uint8_t max_ch, uint32_t sample_count)
 {
-    Max_ch = max_ch;
-    total_sample = sample_count;
+    MaxChnl = max_ch;
+    TotalSample = sample_count;
+    SampleCnt = 0;
 
+    BufReset();
     TIM_Cmd(TIM2, ENABLE);
 
 }

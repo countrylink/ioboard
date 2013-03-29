@@ -16,7 +16,6 @@
 
 uint16_t TxBuffer[BUFFER_SIZE], RxBuffer[BUFFER_SIZE];
 
-
 void Fill_Buffer(uint16_t *pBuffer, uint16_t BufferLenght, uint32_t Offset)
 {
   uint16_t IndexTmp = 0;
@@ -61,6 +60,16 @@ void SRAM_test ()
 }
 #endif
 
+
+void BufReset ( void )
+{
+    BufWrite = (uint16_t*) Bank1_SRAM3_ADDR;
+    BufRead = BufWrite;
+    return ;
+}
+
+
+
 int main(void)
 {
 
@@ -70,8 +79,7 @@ int main(void)
     Board_Init();
 
     DPRINTF(("\r\nStart up the program....\r\n"));
-
-    buf_ptr = (uint16_t*) Bank1_SRAM3_ADDR;
+    BufReset();
 
 #ifdef TEST_SRAM    
     SRAM_test ();
