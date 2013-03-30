@@ -76,6 +76,17 @@ void RxBuf_Reset(void )
 }
 
 
+uint32_t SendData(uint8_t* buf, uint32_t length) 
+{
+		uint32_t i;
+		if (length > 1024) length = 1024;
+		for (i = 0; i < length; i++ ) {
+         SPI2_Send_data(buf[i]);
+		}
+
+	return length;
+}
+
 int main(void)
 {
     uint8_t cmd,cmd1,cmd2,cmd3,cmd_valid;
@@ -129,16 +140,31 @@ int main(void)
             tmp32 = (cmd1<<16) | (cmd2<<8) | (cmd3);
             switch (cmd) {
                 case CMD_SET_RATE:
-                    SamplingRate = tmp & 0xfffff; 
+                    SamplingRate = tmp32 & 0xfffff; 
                     if (!SamplingRate) SamplingRate = 1;
                     break;
                 case CMD_SET_CHAN:
+                    SampingChan = tmp32 & 0x3f;
+		    		if (!SamplingChan) SamplingChan = 2;
                     break;
                 case CMD_START:
+					tmp32 &=0xfffff;
+					if (SysState == STATE_SAMPLING) {
+					   TIM_Cmd(TIM2, DISABLE);          
+                       BufReset ();
+					   SysState = STATE_IDLE;
+					} 
+
+  					TIM2_SetSamplingRate ( SamplingRate);
+                    StartSampling(SamplingChan, tmp32);
+		   			 
                     break;
+
                 case CMD_ABORT:
                     break;
                 case CMD_SEND_DATA:
+              
+
                     break;
                 case CMD_STATUS:
                     break;

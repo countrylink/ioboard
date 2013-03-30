@@ -7,7 +7,7 @@
 void Board_Init(void)
 {
     LEDInit(); 
-	SW_CNTL_Init();
+    SW_CNTL_Init();
 
     USART_Configuration();
     USART_NVIC_Config();
@@ -213,10 +213,16 @@ void TIM2_SetSamplingRate (uint32_t rate )
 void StartSampling(uint8_t max_ch, uint32_t sample_count)
 {
     MaxChan = max_ch;
-    TotalSample = sample_count;
+    if (max_ch * sample_count > MAX_DATA) {
+       TotalSample = MAX_DATA/max_ch;
+    }
+    else
+       TotalSample = sample_count;
+
     SampleCnt = 0;
 
     BufReset();
+    SysState = STATE_SAMPLING;
     TIM_Cmd(TIM2, ENABLE);
 
 }

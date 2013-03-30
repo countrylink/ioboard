@@ -30,6 +30,7 @@ void ADC_SPI_handler (void)
 
     if ( SampleCnt >= TotalSample ) {
         TIM_Cmd(TIM2, DISABLE);
+        SysState = STATE_DATA_RDY;
     }
 }
 

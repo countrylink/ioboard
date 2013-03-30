@@ -2,12 +2,13 @@
 #ifndef __MAIN_H
 #define __MAIN_H
 
-#define STATE_IDLE     0
-#define STATE_SAMPLING 1
-#define STATE_DATA_RDY 2
-#define STATE_COMM     3
+#define STATE_IDLE     0xc0
+#define STATE_SAMPLING 0xc1
+#define STATE_DATA_RDY 0xc2
+#define STATE_COMM     0xc3
 
 #define RX_SIZE 64
+#define MAX_DATA 0x100000
 
 /******  CMD LIST ************************************************************/
 /* bit[31:24] define commands;first 4 bit 1011 as sync pattern.
