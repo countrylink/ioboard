@@ -76,10 +76,10 @@ void RxBuf_Reset(void )
 }
 
 
-uint32_t SendData(uint8_t* buf, uint32_t length) 
+uint32_t SPISendData(uint8_t* buf, uint32_t length) 
 {
 		uint32_t i;
-		if (length > 1024) length = 1024;
+		if (length > SPI_BULK_LEN) length = SPI_BULK_LEN;
 		for (i = 0; i < length; i++ ) {
          SPI2_Send_data(buf[i]);
 		}
@@ -89,12 +89,15 @@ uint32_t SendData(uint8_t* buf, uint32_t length)
 
 int main(void)
 {
-    uint8_t cmd,cmd1,cmd2,cmd3,cmd_valid;
+    uint8_t cmd  = 0;
+    uint8_t cmd1 = 0;
+    uint8_t cmd2 = 0;
+    uint8_t cmd3 = 0;
+    uint8_t cmd_valid = 0;
     
     uint8_t loop,tmp;
     uint32_t tmp32;
 
-    uint32_t cnt =0;
     uint32_t flag = 0;
 
     Board_Init();
@@ -107,7 +110,6 @@ int main(void)
 #endif    
     
     do  {
-
         cmd_valid = 0;
         if (RxFullness >=4 ) {
             loop = 0;
@@ -144,36 +146,58 @@ int main(void)
                     if (!SamplingRate) SamplingRate = 1;
                     break;
                 case CMD_SET_CHAN:
-                    SampingChan = tmp32 & 0x3f;
-		    		if (!SamplingChan) SamplingChan = 2;
+                    SamplingChan = tmp32 & 0x3f;
+                    if (!SamplingChan) SamplingChan = 2;
                     break;
                 case CMD_START:
-					tmp32 &=0xfffff;
-					if (SysState == STATE_SAMPLING) {
-					   TIM_Cmd(TIM2, DISABLE);          
-                       BufReset ();
-					   SysState = STATE_IDLE;
-					} 
+                    tmp32 &=0xfffff;
+                    if (SysState == STATE_SAMPLING) {
+                        TIM_Cmd(TIM2, DISABLE);          
+                        BufReset ();
+                        SysState = STATE_IDLE;
+                    } 
 
-  					TIM2_SetSamplingRate ( SamplingRate);
+                    TIM2_SetSamplingRate ( SamplingRate);
                     StartSampling(SamplingChan, tmp32);
-		   			 
+
                     break;
 
                 case CMD_ABORT:
+                    if (SysState == STATE_SAMPLING) {
+                        TIM_Cmd(TIM2, DISABLE);          
+                        BufReset ();
+                        SysState = STATE_IDLE;
+                    } 
+                    else if (SysState == STATE_SEND_DATA) {
+                        SysState = STATE_IDLE;
+                        SPI_All2Send  = 0;
+                        SPI_DataSent = 0;
+                    }
                     break;
                 case CMD_SEND_DATA:
-              
-
+                    if (SysState == STATE_SEND_DATA)
+                        break;
+                        tmp32 &= 0xfffff;
+                    if (tmp32 > MAX_DATA) tmp32 = MAX_DATA;
+                    SPI_All2Send = tmp32;
+                    if(SysState != STATE_SAMPLING) { 
+                        SPI_DataSent = 0;
+                        SPI_TranClk = sysclk + SPI_TIMEOUT;
+                        if (sysclk > SPI_TranClk) {//overflow,almost no happen
+                            //disable sys int??
+                            sysclk = 0;
+                            SPI_TranClk = sysclk + SPI_TIMEOUT;
+                        }
+                        SysState = STATE_SEND_DATA;
+                    }
                     break;
+
                 case CMD_STATUS:
+                     SPI2_Send_data(SysState);
                     break;
 
                 default:
                     break;
-
-
-
 
             }
 
@@ -181,14 +205,30 @@ int main(void)
 
         }
 
+        if (SysState == STATE_SEND_DATA) {
+            int32_t send;
+            tmp32 = SPI_All2Send - SPI_DataSent; 
+            if (tmp32 <=0) {
+                SysState = STATE_IDLE;
+                SPI_All2Send  = 0;
+                SPI_DataSent = 0;
+            }
+            else {
+                send = (tmp32 > SPI_BULK_LEN) ? SPI_BULK_LEN : tmp32; 
+                tmp32 = SPISendData((uint8_t *) BufRead,send);
+                BufRead +=(tmp32/2); //bytes
+                SPI_DataSent +=tmp32;
+            }
+        }
+
 #if 1        
-        cnt++;
-        if (cnt > 5000000) {
+         if ((sysclk%30) == 0){
             if (flag) {
                 LED1_ON;
                 LED2_ON;
                 flag = 0;
                 AD7327_test();
+                DPRINTF(("sysclk=%d \n",sysclk));
 
             }
             else {
@@ -196,7 +236,6 @@ int main(void)
                 LED2_OFF;
                 flag = 1;
             }
-            cnt = 0;
         }
 #endif         
     } while (1);  //main loop

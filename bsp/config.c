@@ -8,7 +8,7 @@ void Board_Init(void)
 {
     LEDInit(); 
     SW_CNTL_Init();
-
+    SysTick_Configuration();
     USART_Configuration();
     USART_NVIC_Config();
 
@@ -160,7 +160,9 @@ int16_t SPI_ADC_com(uint16_t send, uint16_t *rev)
 
 void SPI2_Send_data (uint8_t data)
 {
-    while ((SPI2->SR & SPI_I2S_FLAG_TXE) == RESET);
+//    while ((SPI2->SR & SPI_I2S_FLAG_TXE) == RESET);
+    
+    SPI_sending_wait_timeout;
     SPI2->DR = data;
     return ;
 }
@@ -227,6 +229,13 @@ void StartSampling(uint8_t max_ch, uint32_t sample_count)
 
 }
 
+void SysTick_Configuration(void )
+{
+    RCC_ClocksTypeDef RCC_Clocks;
+    RCC_GetClocksFreq(&RCC_Clocks);
+    SysTick_Config(RCC_Clocks.HCLK_Frequency/20);
+    return;
+}
 
 
 

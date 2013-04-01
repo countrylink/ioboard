@@ -144,12 +144,27 @@
 #define SPI2_INT_EN  
 #define SPI2_INT_DIS  
 
+#define TIMEOUT1 150000 
+#define SPI_sending_wait_timeout do { \
+    int way_too_much = 0; \
+    spitimeout = 0; \
+    while ((SPI2->SR & SPI_I2S_FLAG_TXE) == RESET) { \
+        if (way_too_much++ >= TIMEOUT1){ \
+            spitimeout = 1; \
+            break;  \
+        } \
+    } \
+} while(0)
+    
+
+
 void LEDInit(void);
 void Board_Init(void);
 void SPI_Configuration(void);
 void SPI2_Configuration (void);
 void SW_CNTL_Init(void);
 
+void SysTick_Configuration(void );
 void TIM2_Config(void);
 void SPI2_Send_data (uint8_t );
 void TIM2_SetSamplingRate (uint32_t );

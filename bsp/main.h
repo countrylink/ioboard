@@ -5,10 +5,14 @@
 #define STATE_IDLE     0xc0
 #define STATE_SAMPLING 0xc1
 #define STATE_DATA_RDY 0xc2
-#define STATE_COMM     0xc3
+#define STATE_SEND_DATA  0xc3
 
 #define RX_SIZE 64
 #define MAX_DATA 0x100000
+
+#define SPI_BULK_LEN 1024
+
+#define SPI_TIMEOUT 6000
 
 /******  CMD LIST ************************************************************/
 /* bit[31:24] define commands;first 4 bit 1011 as sync pattern.
@@ -29,23 +33,31 @@
 #define CMD_STATUS     0xB6
 
 
+GBLDEF(volatile uint32_t sysclk,0 );
 GBLDEF(volatile uint32_t MaxChan,2);
 GBLDEF(volatile uint32_t SampleCnt,0);
 GBLDEF(volatile uint32_t TotalSample,5000);
 GBLDEF(volatile uint32_t SamplingRate,1000);
 GBLDEF(volatile uint32_t SamplingChan,2);
+
+GBLDEF(volatile uint32_t SPI_All2Send,1024);
+GBLDEF(volatile uint32_t SPI_DataSent,0 );
+GBLDEF(volatile uint32_t SPI_TranClk,0 );
+
 GBLDEF(volatile uint16_t *BufWrite,0);
 GBLDEF(volatile uint16_t *BufRead ,0);
 GBLDEF(volatile uint8_t SysState, STATE_IDLE);
 GBLDEF(volatile uint8_t RxWr, 0);
 GBLDEF(volatile uint8_t RxRd, 0);
 GBLDEF(volatile uint8_t RxFullness, 0);
+GBLDEF(volatile uint8_t spitimeout, 0);
 GBLDEF0(uint8_t RxBuf[RX_SIZE]);
 
 
 void Delay (uint32_t nCount);
 void BufReset (void );
 void RxBuf_Reset(void );
+uint32_t SPISendData(uint8_t* buf, uint32_t length) ;
 
 #endif /* __MAIN_H */
 
