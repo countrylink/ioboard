@@ -94,7 +94,7 @@ int main(void)
     uint8_t cmd2 = 0;
     uint8_t cmd3 = 0;
     uint8_t cmd_valid = 0;
-    
+
     uint8_t loop,tmp;
     uint32_t tmp32;
 
@@ -108,9 +108,11 @@ int main(void)
 #ifdef TEST_SRAM    
     SRAM_test ();
 #endif    
-    
+
+    LED1_ON;
     do  {
         cmd_valid = 0;
+        if (RxFullness) EPRINTF(("Data....\r\n"));
         if (RxFullness >=4 ) {
             loop = 0;
             SPI2_INT_DIS;
@@ -140,6 +142,7 @@ int main(void)
 
         if (cmd_valid) {
             tmp32 = (cmd1<<16) | (cmd2<<8) | (cmd3);
+            EPRINTF(("Cmd: 0x%x Param: 0x%x \r\n",cmd,tmp32));
             switch (cmd) {
                 case CMD_SET_RATE:
                     SamplingRate = tmp32 & 0xfffff; 
@@ -177,7 +180,7 @@ int main(void)
                 case CMD_SEND_DATA:
                     if (SysState == STATE_SEND_DATA)
                         break;
-                        tmp32 &= 0xfffff;
+                    tmp32 &= 0xfffff;
                     if (tmp32 > MAX_DATA) tmp32 = MAX_DATA;
                     SPI_All2Send = tmp32;
                     if(SysState != STATE_SAMPLING) { 
@@ -193,7 +196,7 @@ int main(void)
                     break;
 
                 case CMD_STATUS:
-                     SPI2_Send_data(SysState);
+                    SPI2_Send_data(SysState);
                     break;
 
                 default:
@@ -202,7 +205,6 @@ int main(void)
             }
 
             cmd_valid = 0;
-
         }
 
         if (SysState == STATE_SEND_DATA) {
@@ -221,14 +223,14 @@ int main(void)
             }
         }
 
-#if 1        
-         if ((sysclk%30) == 0){
+#if 0        
+        if ((sysclk%60) == 0){
             if (flag) {
                 LED1_ON;
                 LED2_ON;
                 flag = 0;
+                DPRINTF(("sysclk=%d ",sysclk));
                 AD7327_test();
-                DPRINTF(("sysclk=%d \n",sysclk));
 
             }
             else {
